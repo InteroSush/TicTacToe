@@ -6,8 +6,9 @@ public class Game {
 
     private boolean turn = true;
     private Cell[][] field = new Cell[3][3];
-    private boolean isRunning = true;
+    private boolean isRunning;
     private GameStatus gameStatus;
+    private Cell winner = Cell.VOID;
     private final Scanner scanner = new Scanner(System.in);
 
     public Game() {
@@ -21,6 +22,7 @@ public class Game {
     }
 
     public void start() {
+        isRunning = true;
         while (isRunning) {
             gameStatus = checkField();
             if (gameStatus == GameStatus.DRAW || gameStatus == GameStatus.WIN) {
@@ -36,9 +38,11 @@ public class Game {
 
         }
         if (gameStatus == GameStatus.DRAW) {
-
+            printField();
+            System.out.println("Draw!");
         } else if (gameStatus == GameStatus.WIN) {
-
+            printField();
+            System.out.println(winner + " wins!");
         }
     }
 
@@ -51,7 +55,47 @@ public class Game {
     }
 
     private GameStatus checkField() {
-        return GameStatus.CONTINUE;
+
+        if (isWinDiagonal()) {
+            winner = field[1][1];
+            return GameStatus.WIN;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (isWinRow(i)) {
+                winner = field[i][0];
+                return GameStatus.WIN;
+            }
+            if (isWinColumn(i)) {
+                winner = field[0][i];
+                return GameStatus.WIN;
+            }
+        }
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (field[i][j] == Cell.VOID) {
+                    return GameStatus.CONTINUE;
+                }
+            }
+        }
+
+        return GameStatus.DRAW;
+    }
+
+    private boolean isWinRow(int n) {
+        return (field[n][0] == field[n][1]) && (field[n][1] == field[n][2]) && field[n][0] != Cell.VOID;
+    }
+
+    private boolean isWinColumn(int n) {
+        return (field[0][n] == field[1][n]) && (field[1][n] == field[2][n]) && field[0][n] != Cell.VOID;
+    }
+
+    private boolean isWinDiagonal() {
+        if (field[1][1] == Cell.VOID) return false;
+        if (field[0][0] == field[1][1] && field[1][1] == field[2][2]) return true;
+        if (field[0][2] == field [1][1] && field[1][1] == field [2][0]) return true;
+        return false;
     }
 
     private void printTurn() {
@@ -73,7 +117,7 @@ public class Game {
     private void printField() {
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
-                System.out.print(" " + field[x][y]);
+                System.out.print(" " + field[y][x]);
             }
             System.out.println();
         }
@@ -104,9 +148,9 @@ public class Game {
     private void makeMove() {
         int[] cords = read();
         if (turn) {
-            field[cords[1]][cords[0]] = Cell.X;
+            field[cords[0]][cords[1]] = Cell.X;
         } else {
-            field[cords[1]][cords[0]] = Cell.O;
+            field[cords[0]][cords[1]] = Cell.O;
         }
     }
 
